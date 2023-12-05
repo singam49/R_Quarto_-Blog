@@ -1,0 +1,253 @@
+---
+title: "ADTA 5410 by Bulut, Week 4 Lab"
+author: "Enter your Full name"
+format: html
+editor: visual
+---
+
+## General Instructions
+
+1.  You have the option to establish a new folder for this lab assignment and place both this Quarto document and the supplied dataset within it.
+
+2.  The initial code snippet installs specific R packages that could prove valuable in addressing certain questions.
+
+3.  Unless otherwise specified, you have the freedom to select any R package you prefer to address the questions. You are not constrained to utilizing the packages listed in this Quarto template.
+
+4.  Ensure that you include the code responsible for generating each answer, and verify that both your code and its output are visible in your knitted HTML document. You can achieve this by setting **`echo=TRUE`** to print your code chunk in the knitted HTML code.
+
+5.  Once you've completed your work, knit your Quarto document into an HTML document and save it within the folder you established in step 1.
+
+6.  Please submit your assignment by uploading both the knitted HTML document and the QMD file to the specified course portal on Canvas prior to the designated due date and time
+
+7.  Ensure your Quarto Document is saved with the following naming convention: "**LastName_FirstName_Week4.qmd**" (i.e. Doe_Jane_Week3.qmd). Students will lose 2 points for improper file naming.
+
+8.  Please place your code for each task within the specified code section.
+
+9.  Ensure that all non-code written responses are placed within the corresponding Task section where the question content is located.
+
+10. You are allowed to seek assistance from ChatGPT exclusively for assistance in writing your code. However, please be cautious as ChatGPT may occasionally provide inaccurate information when it comes to scripting in specific programming languages.
+
+11. Verbal responses must be articulated in your own words. You cannot use ChatGPT for generating or providing verbal responses. All verbal responses should originate from your own understanding and expression.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(tidyverse)
+library(dplyr)
+
+
+knitr::opts_chunk$set(echo = TRUE)
+
+
+
+```
+
+## Week 4 Assignment
+
+## Business Problem
+
+You work for a consulting company to understand the factors on which professional Baseball players' salaries depend.
+
+You are given individual data for professional players in the Major League along with their 1986 performance measures and 1987 salary.
+
+The business goal of the consulting firm is to model the logged salary of professional Baseball players with the available independent variables. Your findings will be used by the company clients to understand how exactly the logged salaries vary with the independent variables.
+
+The data consists of 263 observations of 16 attributes. Below is a brief description of the variables in the data:
+
+**Attributes:**
+
+-   **CrAtBat** Career Times at Bat
+
+-   **CrBB** Career Walks
+
+-   **CrHits** Career Hits
+
+-   **CrHome** Career Home Runs
+
+-   **CrRbi** Career RBIs
+
+-   **CrRuns** Career Runs
+
+-   **YrMajor** Years in the Major Leagues
+
+-   **nAssts** Assists in 1986
+
+-   **nAtBat** Times at Bat in 1986
+
+-   **nBB** Walks in 1986
+
+-   **nError** Errors in 1986
+
+-   **nHits** Hits in 1986
+
+-   **nHome** Home Runs in 1986
+
+-   **nOuts** Put Outs in 1986
+
+-   **nRBI** RBIs in 1986
+
+-   **nRuns** Runs in 1986
+
+**Outcome:**
+
+**LogSalary**: Log of 1987 Salary in \$ Thousands
+
+Below, the dataset is loaded and then split into a train and test sets in a 80:20 ratio. Your job is to use the training set to build the models in Tasks 1-4. In Task 5, you will use the test set to check the model performance on an unseen data.
+
+#### Do not change anything in this r chunk. Just run the code chunk and move to the next one
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Run this code chunk without altering it
+# clear the session
+rm(list=ls())
+# We will need these libraries, if you will use others, just add in here
+
+
+library(glmnet)
+
+
+
+# read data in R and remove player and team names, League, Division, Position and Div variables
+set.seed(20235410)
+DataBaseball = read.csv("Data_RLab4.csv", header = TRUE,stringsAsFactors = TRUE)
+DataBaseball<-DataBaseball[,-c(1,2, 16, 17,18,  22)]
+
+# You can check to see if there is any missing values in the data
+#sapply(DataBaseball, function(x) sum(is.na(x)))
+
+# Do a random split of the dataset into train and tests set by keeping 20% of the data in the test set. 
+shuffleid = sample(nrow(DataBaseball), 0.2 * nrow(DataBaseball))
+testData = DataBaseball[shuffleid, ]
+trainData = DataBaseball[-shuffleid, ]
+
+
+```
+
+## Task 1: Full model building
+
+::: {.callout-important appearance="simple"}
+## Task 1
+
+-   You will only use **trainData** in **Task 1.**
+
+-   Utilize the **`trainData`** dataset to construct a linear regression model. The dependent variable should be **`logSalary`**, while all other columns should serve as predictors. Please label this model as **`model_full`**
+
+-   Based on the outcomes from **`model_full`**, identify the regression coefficients that hold statistical significance at the 99% confidence level. Print out the coefficients that meet this level of significance. (Hint: you can use which() function along with names () function to extract the coefficients.)
+
+-   Determine the mean-squared prediction error (MSPE), adjusted R2, AIC, and BIC values for **`model_full`**. Store these values in R objects named **`MSPE_Full`**, **`AdjR2_Full`**, **`AIC_Full`**, and **`BIC_Full`**, respectively
+:::
+
+## Your code for Task 1
+
+```{r, echo=TRUE}
+# Please provide your code for Task 1 in this code chunk
+
+
+```
+
+## Task 2: Best-subset model building
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="simple"}
+## Task 2
+
+-   You will only use **trainData** in **Task 2.**
+
+-   Utilize the **`trainData`** dataset to construct a linear regression model. The dependent variable should be **`logSalary`**, for the set of regressor, you will use the following set of variables that are picked by the best subset selection method: `nAtBat`, `nHits`, `nRBI`, `nBB`, `YrMajor`, `CrHome`, `nOuts`
+
+-   Please label this model as **`model_bestsubset`**
+
+-   Based on the outcomes from **`model_bestsubset`**, identify the regression coefficients that hold statistical significance at the 95% confidence level. Print out the coefficients that meet this level of significance. (Hint: you can use which() function along with names () function to extract the coefficients.)
+
+-   Determine the mean-squared prediction error (MSPE), adjusted R2, AIC, and BIC values for **`model_bestsubset`**. Store these values in R objects named **`MSPE_bestsubset`**, **`AdjR2_bestsubset`**, **`AIC_bestsubset`**, and **`BIC_bestsubset`**, respectively
+:::
+
+## Your code for Task 2
+
+```{r, echo=TRUE}
+# Please provide your code for Task 2 in this code chunk
+# cv.glm(, K=5) gives  you the 5 fold-cross validation results
+# cv.glm(, K=10) gives  you the 10 fold-cross validation results
+# cv.glm(, K=n) gives  you the LOOCV results when n is the number of rows in trainData
+
+```
+
+## Task 3: K-fold Cross Validation
+
+::: {.callout-important appearance="simple"}
+## Task 3
+
+-   You will be totally blind to **testData** in Task 3 (You can't use **testData** in task 3)
+
+-   Using R's **`glmnet`** package and setting the seed to **`20235410`**, calculate the average MSPE for both **`model_full`** and **`model_bestsubset`** based on the **`trainData`** dataset. Perform cross-validation in three ways: 5-fold, 10-fold, and leave-one-out. Save the average MSPE outcomes for **`model_full`** in **`five.fold_Full`**, **`ten.fold_Full`**, and **`loocv.Full`**. Similarly, for **`model_bestsubset`**, save the results in **`five.fold_bestsubset`**, **`ten.fold_bestsubset`**, and **`loocv.bestsubset`**.
+
+    *Tip: The **`cv.glm()`** function's **`delta`** attribute contains prediction error estimates, with the first value being the cross-validation estimate of the test error.*
+
+-   **Need Written Response:** Does the MSPE rise or fall when applying cross-validation? Understand and explain the reasons behind the observed changes in MSPE with the cross-validation technique?
+
+-   **Need Written Response:** If you had to select the best model solely based on the `MSPE_Full` and `MSPE_bestsubset` values, which one would you opt for and what's the rationale behind your choice? On the other hand, if you were asked to choose the best model based on the cross-validation outcomes using the MSPE criterion, which model would stand out as the superior choice and why? Does this process lead to a difference in the identified best model? If there's a discrepancy, what could be the potential reasons for it?
+:::
+
+## Your code for Task 3
+
+```{r, echo=TRUE}
+# Please provide your code for Task 3  in this code chunk
+
+```
+
+## Task 4: LASSO REGRESSION
+
+::: {.callout-important appearance="simple"}
+## Task 4
+
+-   You will be totally blind to **testData** in Task 4 (You can't use **testData** in task 4)
+
+Now, let's execute LASSO regression on the **`model_full`** using the **`trainData`**.
+
+-    Your task is to draft an R script utilizing the **`glmnet`** package, initializing the seed to **`20235410`**. Implement LASSO regression on the **`trainData`** dataset, incorporating 10-fold cross-validation. Display the **optimal lambda** value along with the lowest mean cross-validated error, retaining the default loss function (type.measure="mse"). Remember, the **`glmnet`** package handles the standardization of features, so there's no need for additional adjustments.
+
+-   With the **optimal lambda** value determined by the 10-fold cross-validation, conduct a LASSO regression on **`trainData`** and designate the outcome as **`Lasso_Model`**. Identify the variables excluded in the **`Lasso_Model`** results. In other words, showcase the variables within **`Lasso_Model`** that possess a coefficient estimate of `.` (No estimate)
+:::
+
+## Your code for Task 4
+
+```{r, echo=TRUE}
+# Please provide your code for Task 4 in this code chunk
+
+
+
+
+
+
+
+
+
+```
+
+------------------------------------------------------------------------
+
+## TASK 5:  Prediction on a new dataset
+
+::: {.callout-important appearance="simple"}
+## Task 5
+
+-   Now is the time to use **testData**.
+
+    Let's evaluate the performance of our models. For each entry in **`testData`**, predict **`logSalary`** using **`model_full`** from Task 1, **`model_bestsubset`** from Task 2, and **`Lasso_Model`** from Task 4. Store these predictions as **`test_full`**, **`test_bestsubset`**, and **`test_lasso`** respectively.
+
+-   Determine the top-performing model using the MSPE criterion. Does the outcome align with your expectations? Illustrate your process and provide a thorough explanation.
+:::
+
+## Your code for Task 5
+
+```{r, echo=TRUE}
+# Please provide your code for Task 4 in this code chunk
+
+
+
+
+
+
+
+
+```

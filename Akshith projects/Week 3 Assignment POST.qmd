@@ -1,0 +1,233 @@
+---
+title: "ADTA 5410 by Bulut, Week 3 Lab"
+author: "Enter your Full name"
+format: html
+editor: visual
+---
+
+## General Instructions
+
+1.  You have the option to establish a new folder for this lab assignment and place both this Quarto document and the supplied dataset within it.
+
+2.  The initial code snippet installs specific R packages that could prove valuable in addressing certain questions.
+
+3.  Unless otherwise specified, you have the freedom to select any R package you prefer to address the questions. You are not constrained to utilizing the packages listed in this Quarto template.
+
+4.  Ensure that you include the code responsible for generating each answer, and verify that both your code and its output are visible in your knitted HTML document. You can achieve this by setting **`echo=TRUE`** to print your code chunk in the knitted HTML code.
+
+5.  Once you've completed your work, knit your Quarto document into an HTML document and save it within the folder you established in step 1.
+
+6.  Please submit your assignment by uploading both the knitted HTML document and the QMD file to the specified course portal on Canvas prior to the designated due date and time
+
+7.  Ensure your Quarto Document is saved with the following naming convention: "**LastName_FirstName_Week3.qmd**" (i.e. Doe_Jane_Week3.qmd)
+
+8.  Please place your code for each task within the specified code section.
+
+9.  Ensure that all non-code written responses are placed within the corresponding Task section where the question content is located.
+
+10. You are allowed to seek assistance from ChatGPT exclusively for assistance in writing your code. However, please be cautious as ChatGPT may occasionally provide inaccurate information when it comes to scripting in specific programming languages.
+
+11. Verbal responses must be articulated in your own words. You cannot use ChatGPT for generating or providing verbal responses. All verbal responses should originate from your own understanding and expression.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(xts)
+
+knitr::opts_chunk$set(echo = TRUE)
+my_factors <- read.csv("Data_RLab3.csv") # call the data
+
+
+```
+
+## Week 3 Assignment
+
+## Task 1: DATA FILTERING and SUBSETTING
+
+::: callout-important
+1.  Create a new column in `myfactors` dataset, call it `Y`, substracting \``` ret-RF` `` from \``` Brk_ret` `` ( `Y=Brk_ret-RF)`
+
+2.  Create a copy of `myfactors` by dropping the following columns: `Date`, `RF`,`Brk_ret`,`Brk_exret`,`Subperiod`, and `Mkt.` Name your R object as `Fulldata`. Make sure the data was sorted in chronological order by `Date` before you subset your data.
+
+3.  In `Fulldata` dataset, rename `Mkt_rf` to `MRP`, and `Mom` to `MOM`
+
+4.   Create a new dataset called `trainset` which contains the first 400 observations in `Fulldata`.
+
+5.  Create a new dataset called `testset` which contains the last 100 observations in `Fulldata`.
+:::
+
+## Your code for Task 1
+
+```{r, echo=TRUE}
+# Please provide your code for Task 1 in this code chunk
+
+
+```
+
+## Return Prediction: Brief Explanation
+
+In Lab3, we will use the stock return data. We have monthly excess return data on a diversified portfolio along with 5 factors that are shown in the literature to have an impact on stock returns. Nobel Laureate Eugene Fama and Kenneth French originally introduced the three factors model in their 1993 Journal of Financial Economics article. Then, 2 more factors were added to the original model, called the 5-factor model. In this lab assignment, your task is to apply model selection techniques to come up with a model that will be used to estimate stock returns in new data set and the test root mean squared error (RMSE).
+
+-   **TARGET VARIABLE:** Excess return on a diversified portfolio and it is captured as return on a portfolio - risk free rate (return on Long-term US Government Bond returns).
+
+-   **5-Factors:**
+
+    1\. SIZE:Small-cap stocks tend to outperform large-cap stocks (Size is measured by stock price \* shares outstanding)
+
+    2\. VALUE: Cheaper stocks (Value stocks) tend to outperform expensive (Growth) stocks (Inexpensiveness: Book Value/Market Value, Book to Market ratio, B/M)
+
+    \- Lower the B/M, expensive the stock (Growth stocks)
+
+    \- Higher the B/M, cheap the stock (Value Stocks)
+
+    3\. MOMENTUM: Winners outperform losers
+
+    4\. RISK (BETA): Lower the beta of a stock, higher the return performance
+
+    5\. QUALITY: Higher the profitability, higher the return performance
+
+## Data Dictionary
+
+-   We have 500 observations in the original data, called `Fulldata`. Data spans from November 1976 till June 2018.
+
+    -   We divided `Fulldata` into two sets: `trainset` and `testset`. The first 400 monthly observations (Monthly data from November 1976 till February 2010) were kept for training purposes. The last 100 monthly observations were kept as our testing data and it spans from March 2010 till June 2018.
+
+**Target Variable**
+
+**Y**: Excess return on a portfolio= Portolio return - risk free rate (return on US Government bonds)
+
+**Factors (Predictors)**
+
+1\. SMB to capture size
+
+2\. HML to capture Value
+
+3\. MOM to capture Momentum
+
+4\. BAB to capture Risk
+
+5\. QMJ to capture Quality
+
+6\. MRP: A measure of average market risk premium: measures as return on a value-weighted market portfolio - risk free rate.
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="simple"}
+## Task 2: FORWARD SELECTION
+
+-   You will be totally blind to **testset** in Task 2 (You can't use **testset** in task 2)
+
+-   Use the step function in stats package and run a forward stepwise regression on **trainset** and name your model **model_forward**. Use the `AIC` information criteria for the model selection.
+
+-   Store the root mean squared error of **model_forward** as **rmse_train_forward.**
+
+-   Store the Adjusted R-squared value of **model_forward** as **AdjR2_train_forward.**
+
+-   Which variable was added first, second, and so on? Identify the optimal set of predictors for your regression model based on `model_forward` and print the list in your output.
+:::
+
+## Your code for Task 2
+
+```{r, echo=TRUE}
+# Please provide your code for Task 2 in this code chunk
+
+
+```
+
+------------------------------------------------------------------------
+
+::: callout-important
+## Task 3: BACKWARD SELECTION
+
+-   Uou will be totally blind to **testset** in Task 3 (You can't use **testset** in task 3)
+
+-   Use the step function in stats package and run a backward stepwise regression on **trainset** and name your model **model_backward** Use information criteria for the model selection.
+
+-   Store the root mean squared error of **model_backward** as **rmse_train_backward.**
+
+-   Store the Adjusted R-squared value of **model_backward** as **AdjR2_train_backward.**
+
+-   Which variable was removed first, second, and so on? Identify the optimal set of predictors for your regression model based on `model_backward` and print the list in your output.
+:::
+
+## Your code for Task 3
+
+```{r, echo=TRUE}
+# Please provide your code for Task 3 in this code chunk
+
+
+
+```
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="simple"}
+## Task 4: BEST SUBSET SELECTION
+
+-   What is the total number of different models that can be built from all possible combinations of the predictors with p=6?
+
+-   Use **leaps** function in the **leaps** library in R to compare all possible models and decide on the best model. You can use leaps package and set the **nbest** parameter to **1** to get the desired table.
+
+-   Which set of predictors will give you the highest Adjusted R-squared value when we use the ***trainset*** to train all possible subset models. Name the optimal model as `model_subset`.
+
+-   Side note: The leaps function in R can help you to construct a table indicating the variables included in the best model of each size (p=1,p=2,..., p=6) and the corresponding Adjusted R-squared value.
+
+-   Store the root mean squared error of **model_subset** as **rmse_train_subset** **.**
+
+-   Store the Adjusted R-squared value of **model_subset** as **AdjR2_train_subset.**
+
+-   For the **model_subset**, plot the residuals against the fitted values and comment on the residual plot?
+
+-   Based on your analysis, if you had to pick the best model from these three options using only the train set data, which one would you recommend and why?
+:::
+
+## Your code for Task 4
+
+```{r, echo=TRUE}
+# Please provide your code for Task 4 in this code chunk
+
+
+
+
+
+
+
+
+```
+
+------------------------------------------------------------------------
+
+::: callout-important
+## Task 5: TESTING
+
+-   You will only use **testset** in Task 5.
+
+-   Now, it is time to put all the fitted models a test. Predict **Y** for each of the rows in the test data, **testset**, using **model_forward, model_backward,** and **model_subset**.
+
+-   Save the root mean squared error for **`model_forward`** using the `testset` in an R object called **`rmse_test_forward`**
+
+-   Save the Adjusted R-squared of **`model_forward`** using the `testset` in an R object called **AdjR2\_\_test_forward.**
+
+-   Save the root mean squared error for **model_backward** using the `testset` in an R object called **`rmse_test_backward`**
+
+-   Save the Adjusted R-squared of **`model_backward`** using the `testset` in an R object called **`AdjR2_test_backward`**.
+
+-   Save the root mean squared error for **`model_subset`** using the `testset` in an R object called `rmse_test_subset`
+
+-   Save the Adjusted R-squared of `model_subset` using the `testset` in an R object called `AdjR2_test_subset`.
+
+-   Which model does a good job to predict `Y` in `testset` based on root mean squared error criterion?
+
+-   Which model does a good job to predict `Y` in `testset` based on Adjusted R-squared value criterion?
+:::
+
+## Your code for Task 5
+
+```{r, echo=TRUE}
+# Please provide your code for Task 5 in this code chunk
+
+
+
+```

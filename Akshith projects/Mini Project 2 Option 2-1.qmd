@@ -1,0 +1,291 @@
+---
+title: "Mini Project 2: Option 2"
+format: html
+editor: visual
+---
+
+```{r, echo=TRUE}
+# Run this code chunk without changing it
+
+
+
+
+```
+
+# MINI PROJECT 2: OPTION 2
+
+Random forest is an ensemble-based method that uses multiple decision trees constructed via bagging (bootstrapped aggregating) with random feature selection. Due to random selection of a subset of all features in tree-growing, it can handle large, noisy, or even missing data. We will use **randomForest** package in this assignment.
+
+### DATA: **OFP** - Visits to Physician Office Data
+
+Our data set contains the following variables:
+
+Predictors
+
+-   **ofp**: number of physician office visits
+
+-   **ofnpv**: number of nonphysician office visits
+
+-   **opp**: number of physician outpatient visits
+
+-   **opnp**: number of nonphysician outpatient visits
+
+-   **emr**: number of emergency room visits
+
+-   **hosp** number of hospitalizations
+
+-   **numchron**: number of chronic conditions
+
+-   **adldiff**: the person has a condition that limits activities of daily living ?
+
+-   **age**: age in years (divided by 10)
+
+-   **black**: is the person African or American?
+
+-   **sex**: is the person male ?
+
+-   **married**: is the person married ?
+
+-   **school**: number of years of education
+
+-   **faminc**: family income in \$10000
+
+-   **employed**: is the person employed ?
+
+-   **privins**: is the person covered by private health insurance ?
+
+-   **medicaid**: is the person covered by medicaid ?
+
+-   **region**: the region (noreast, midwest,west)
+
+**Target Variable**
+
+-   **hlth**: self-perceived health (excellent, poor, other)
+
+There are 4406 observations and 18 predictors in our data set to predict our outcome variable hlth
+
+```{r, echo=TRUE}
+# Call the necessary packagesinstall.packages("randomForest")
+
+library(dplyr)
+library(rpart)
+library(ipred)
+library(caret)
+library(ggplot2)
+library(randomForest)
+library(knitr)
+
+# read the csv file in R and name it as OFP_data
+
+ OFP_data<-read.csv("C:/Users/hp/Downloads/MP2_data_option2-1.csv")
+```
+
+## Task 1: Data Preparation
+
+-   Declare the following variables as categorical (factor)
+
+**adldiff, black, sex, maried, employed, privins, medicaid, region, hlth**
+
+-   Split **OFP_data** into training and testing sets, keep 30% of the data for validation. Use the **set.seed(5410)** seed values and name the training and test sets as **OFP_train** and **OFP_test**, respectively.
+
+```{r, echo=TRUE}
+# Your code for Task 1  goes below
+library(caret)
+
+# Convert specified variables to factors
+categorical_vars <- c("adldiff", "black", "sex", "maried", "employed", "privins", "medicaid", "region", "hlth")
+OFP_data[categorical_vars] <- lapply(OFP_data[categorical_vars], factor)
+
+# Set seed for reproducibility
+set.seed(5410)
+
+# Split the data into training and test sets
+splitIndex <- createDataPartition(OFP_data$ofp, p = 0.70, list = FALSE)
+OFP_train <- OFP_data[splitIndex, ]
+OFP_test <- OFP_data[-splitIndex, ]
+
+print(table(OFP_train$hlth))
+
+```
+
+## Modeling self-perceived health status with Random Forest method
+
+We will use the **OFP_train** data to train random forest model to predict self-perceived health status. As shown above, in the **OFP_train** data, 241 people self-described their health status as "excellent", 388 as "poor" and the remaining 2457 of them as "other". We will use **randomForest** function in **randomForest** package to try to predict **hlth**.
+
+By default, **randomForest** function grows an ensemble of 500 trees and takes the square root of number of predictors as the number of random features at each split in tree growing. **randomForest** function displays in the output page OOB estimate of error rate which can be used as the estimate of error rate: if the model is applied to a brand new data, we expect random forest model to perform with an estimated error rate captured by OOB estimate of error rate.
+
+## Task 2:
+
+In Task 2, just use the default parameters in **randomForest** function to predict **hlth** by training the model with the **OFP_train** data set. Use the **set.seed(22222)** seed values for reproducability. Name your model **rf_default**.
+
+```{r, echo=TRUE}
+# Enter your code for Task  2  below
+library(randomForest)
+
+# Set seed for reproducibility
+set.seed(22222)
+
+# Train the random forest model using default parameters
+rf_default <- randomForest(hlth ~ ., data = OFP_train)
+
+rf_default
+```
+
+## Task 3:
+
+Now, predict the **hlth** levels in the **OFP_test** data set by using model **rf_default**, name the predictions as **rf_default_predict**. One can use the **predict()** function to predict outcome variable on a brand new data. The type parameter in **predict()** function can be either "**response**", "**prob**", or "**votes**". The type parameter is used to indicate whether the prediction should contain the predicted class (response), the predicted probabilities (prob), or the vote counts (votes). Use the appropriate type in the options to calculate the predicted self-perceived health (excellent, poor, other) status.
+
+```{r, echo=TRUE}
+# Enter your code for Task 3  below
+# Predicting hlth levels in OFP_test using the rf_default model
+rf_default_predict <- predict(rf_default, newdata = OFP_test, type = "response")
+
+```
+
+## Task 4:
+
+Before moving on to the next question, calculate the accuracy ratio in **OFP_test** data set based on the predictions stored in **rf_default_predict** and name it as **rf_default_accuracy**. Your code should also print the calculated **rf_default_accuracy** value.
+
+```{r, echo=TRUE}
+# Enter your code for Task 4  below
+# Your code should produce the accuracy ratio
+# Calculate the number of correct predictions
+correct_predictions <- sum(rf_default_predict == OFP_test$hlth)
+
+# Calculate the total number of predictions
+total_predictions <- nrow(OFP_test)
+
+# Calculate accuracy ratio
+rf_default_accuracy <- correct_predictions / total_predictions
+
+# Print the accuracy
+print(rf_default_accuracy)
+```
+
+### Additional settings in fitting a random forest using randomForest
+
+We can modify the default parameters in **randomForest** function. Some of the options are listed below:
+
+-   **ntree** number of bootstrap trees in the forest
+
+-   **mtry** number of predictors to choose randomly for each split (default = p/3 for regression problems and square root of p for classification problems.)
+
+-   **nodesize** minimum size of the terminal nodes in terms of the number of observations contained in them, default is 1 for classification problems and 5 for regression problems. Larger values here speed of the fitting process because trees in the forest will not be as big.
+
+-   **maxnodes** maximum number of terminal nodes a tree can have in the forest. Smaller values will speed up fitting.
+
+-   **importance** if T, variable importance will be computed.
+
+## Task 5:
+
+Modify **rf_default** model by:
+
+-   growing 600 trees
+
+-   setting the number of variables to randomly pick at each stage (mtry) to 3.
+
+-   setting the minimum size of the terminal nodes to 3
+
+-   setting the maximum number of terminal nodes a tree can have to 300
+
+Use **set.seed(22222)** seed values for reproducability. Name your model **rf_default2**.
+
+```{r, echo=TRUE}
+# Enter your code for Task 5  below
+set.seed(22222)
+# Modify rf_default model
+rf_default2 <- randomForest(hlth ~ ., data = OFP_train,
+                            ntree = 600,
+                            mtry = 3,
+                            nodesize = 3,
+                            maxnodes = 300,
+                            importance = TRUE)
+print(rf_default2)
+```
+
+### Task 6:
+
+Now, predict the **hlth** levels in the **OFP_test** data set by using model **rf_default2** and name the predictions as **rf_default2_predict**. Then, calculate the accuracy ratio in **OFP_test** data set based on the predictions stored in **rf_default2_predict** and name it as **rf_default2_accuracy**. Your code should also print the calculated **rf_default2_accuracy** value.
+
+```{r, echo=TRUE}
+# Enter your code for Task 6  below
+# Predict health levels using rf_default2 model
+rf_default2_predict <- predict(rf_default2, OFP_test, type = "response")
+
+# Calculate accuracy ratio for rf_default2
+correct_predictions_rf_default2 <- sum(OFP_test$hlth == rf_default2_predict)
+total_predictions_rf_default2 <- nrow(OFP_test)
+rf_default2_accuracy <- correct_predictions_rf_default2 / total_predictions_rf_default2
+
+print(paste("Random Forest Modified Model Accuracy: ", round(rf_default2_accuracy * 100, 2), "%"))
+```
+
+### Tuning with tuneRF function
+
+Below, we use **tuneRF** function in **randomForest** package to tune **mtry** parameter. We will start with **mtry** value of 18 (**mtryStart = 18**) and increase/decrease it by a certain step factor (**stepFactor = 1.5**) until the Out-of-bag error stops improving by a certain amount (i**mprove = 0.001**). You can set **trace = TRUE** to print the progress. We use 50 trees at the tuning step (**ntreeTry = 50**). Since **tuneRF** requires a separate x and y specification, we named the features matrix in **OFP_train** data set as **OFP_train_features**. The optimal **mtry** value is the one with the lowest OOB rate.
+
+```{r, echo=TRUE}
+# NOTE: After splitting data into OFP_train and OFP_test, you can run (just delete the # sign in front of each executable code) the following lines of codes with no error. 
+
+# get the features column in OFP_train
+OFP_train_features<-OFP_train%>%
+select(-hlth)
+
+set.seed(22222)
+tune_mtry <- tuneRF(
+  x          = OFP_train_features,
+  y          = OFP_train$hlth,
+  ntreeTry   = 50,
+  mtryStart  = 18,
+  stepFactor = 1.5,
+  improve    = 0.001,
+  plot = TRUE,
+  trace      = TRUE    
+)
+
+tune_mtry
+
+```
+
+**Task 7**
+
+Now, we will do a similar tuning with **caret** package. Your task is to use random forest method in **caret** package (**method = "rf"** ) to find the optimal mtry value by using **10-fold cross-validation**. Use **set.seed(22222)** seed values. For accuracy, enter **metric='Accuracy'**. By using **tuneGrid** option, look for even **mtry** values ranging from 2 to 20 and name your model as **rf_default3**. What is the optimal **mtry** value and the corresponding cross-validated average accuracy rate in **rf_default3**?
+
+```{r, echo=TRUE}
+library(caret)
+set.seed(22222)
+
+# Define the tuning grid
+tuneGrid <- expand.grid(mtry = seq(from = 2, to = 20, by = 2))
+
+# Train the model
+rf_default3 <- train(
+  hlth ~ ., 
+  data = OFP_train, 
+  method = "rf", 
+  metric = "Accuracy", 
+  tuneGrid = tuneGrid, 
+  trControl = trainControl(method = "cv", number = 10)
+)
+
+# Print the optimal mtry value and the corresponding cross-validated average accuracy rate
+print(paste("Optimal mtry value: ", rf_default3$bestTune$mtry))
+print(paste("Cross-validated average accuracy rate: ", round(max(rf_default3$results$Accuracy), 4)))
+
+```
+
+### Task 8: Prediction
+
+Now, predict the **hlth** levels in the **OFP_test** data set by using model **rf_default3** and name the predictions as **rf_default3_predict**. Then, calculate the accuracy ratio in **OFP_test** data set based on the predictions stored in **rf_default3_predict** and name it as **rf_default3_accuracy**.
+
+```{r, echo=TRUE}
+# Predict hlth levels in the OFP_test data set
+rf_default3_predict <- predict(rf_default3, newdata = OFP_test)
+
+# Calculate accuracy ratio in OFP_test data set
+rf_default3_accuracy <- confusionMatrix(rf_default3_predict, OFP_test$hlth)$overall["Accuracy"]
+
+# Print the accuracy ratio
+print(paste("Accuracy Ratio on OFP_test: ", round(rf_default3_accuracy, 4)))
+
+```

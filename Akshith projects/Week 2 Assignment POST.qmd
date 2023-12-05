@@ -1,0 +1,223 @@
+---
+title: "ADTA 5410 by Bulut, Week 2 Lab"
+author: "Enter your Full name"
+format: html
+editor: visual
+---
+
+## General Instructions
+
+1.  You have the option to establish a new folder for this lab assignment and place both this Quarto document and the supplied dataset within it.
+
+2.  The initial code snippet installs specific R packages that could prove valuable in addressing certain questions.
+
+3.  Unless otherwise specified, you have the freedom to select any R package you prefer to address the questions. You are not constrained to utilizing the packages listed in this Quarto template.
+
+4.  Ensure that you include the code responsible for generating each answer, and verify that both your code and its output are visible in your knitted HTML document. You can achieve this by setting **`echo=TRUE`** to print your code chunk in the knitted HTML code.
+
+5.  Once you've completed your work, knit your Quarto document into an HTML document and save it within the folder you established in step 1.
+
+6.  Please submit your assignment by uploading both the knitted HTML document and the QMD file to the specified course portal on Canvas prior to the designated due date and time
+
+7.  Ensure your Quarto Document is saved with the following naming convention: "**LastName_FirstName_Week2.qmd**" (i.e. Doe_Jane_Week2.qmd) . Students will lose 2 points for not properly naming their file.
+
+8.  Please place your code for each task within the specified code section.
+
+9.  Ensure that all non-code written responses are placed within the corresponding Task section where the question content is located.
+
+10. You are allowed to seek assistance from ChatGPT exclusively for assistance in writing your code. However, please be cautious as ChatGPT may occasionally provide inaccurate information when it comes to scripting in specific programming languages.
+
+11. Verbal responses must be articulated in your own words. You cannot use ChatGPT for generating or providing verbal responses. All verbal responses should originate from your own understanding and expression.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+## State-level Census data
+
+-   We have state level census data on various socio-economic and demographic factors called **mydata**. The data consists of the following variables:
+
+```{r, echo=TRUE}
+mydata<-read.csv("Data_RLab2.csv", head=T)
+names(mydata)
+
+```
+
+-   In this lab assignment, you will start by looking closely at the data to understand it better. Then, you'll use a multiple linear regression to make predictions. You'll also check if the assumptions of this method hold true, look for data points that might be unusual, and figure out which factors are especially important for making predictions.
+-   There are `r dim(mydata)[1]` observations and `r dim(mydata)[2]` variables in the data. Several variables are expressed in percentage points as a fraction of the total population. Here is a snapshot of our data for reference:
+
+```{r, echo=FALSE}
+knitr::kable(head(mydata))
+
+```
+
+-   There are 18 variables in the dataset
+
+    1.  **State**: This variable represents the name of each state in the dataset.
+
+    2.  **OwnComputer**: This variable represents the percentage of households in each state that own a computer, indicating the level of computer ownership.
+
+    3.  **CommutePublicTransport**: This variable represents the percentage of people in each state who use public transportation as their primary means of commuting to work or other places.
+
+    4.  **TotalPopulation**: This variable represents the total population of each state, indicating the number of people residing in that state.
+
+    5.  **MedianAge**: This variable represents the median age of the population in each state, providing an insight into the state's demographic age distribution.
+
+    6.  **WithCashAssistanceIncome**: This variable represents the percentage of households or individuals in each state receiving cash assistance income, possibly from government programs.
+
+    7.  **MeanSocialSecurityIncome**: This variable represents the average or mean amount of Social Security income received by individuals in each state.
+
+    8.  **SupplementarySecurityIncome**: This variable represent the percentage of people in each state who receives supplementary security income related to social welfare programs.
+
+    9.  **WhiteOnly**: This variable represents the percentage of people in each state identifying as White or Caucasian in terms of racial or ethnic background.
+
+    10. **Latinos**: This variable represents the percentage of people in each state identifying as Latino or Hispanic in terms of racial or ethnic background.
+
+    11. **Asians**: This variable represents the percentage of people in each state identifying as Asian in terms of racial or ethnic background.
+
+    12. **AfricanAmerican**: This variable represents the percentage of people in each state identifying as African American or Black in terms of racial or ethnic background.
+
+    13. **Income100K.150K**: This variable represents the percentage or number of households in each state with an annual income falling within the range of \$100,000 to \$150,000.
+
+    14. **Income75K.100K**: This variable represents the percentage of households in each state with an annual income falling within the range of \$75,000 to \$100,000.
+
+    15. **Income50K.75K**: This variable represents the percentage of households in each state with an annual income falling within the range of \$50,000 to \$75,000.
+
+    16. **Income35K.50K**: This variable represents the percentage of households in each state with an annual income falling within the range of \$35,000 to \$50,000.
+
+    17. **Income25K.35K**: This variable represents the percentage of households in each state with an annual income falling within the range of \$25,000 to \$35,000.
+
+    18. **PovertyRate**: This variable represents the poverty rate in each state, indicating the percentage of the population living below the poverty line or threshold.
+
+-   Our target variable is `commuters`, which you will calculate as `CommutePublicTransport` divided by `TotalPopulation`, representing the percentage of the state's population that utilizes public transportation. Although it may not appear immediately appealing to analyze, in this lab assignment, we will try to uncover the determinants that impact our target variable.
+
+::: callout-important
+## Task 1: DATA SORTING
+
+1.  Create a copy of `mydata` and call it `dataUS`.
+
+2.  Create a new column in `dataUS` called **`commuters`** by using the following formula:
+
+    `commuters = 100*CommutePublicTransport / TotalPopulation.`
+
+    This new variable will help you determine the proportion of people who commute via public transport in relation to the total population.
+
+3.  Finally, clean up the **`dataUS`** dataset by removing two variables:
+
+    -   **`CommutePublicTransport`**
+
+    -   **`TotalPopulation`**
+
+4.  Identify the three states with the highest values of `commuters` and the three states with the lowest values of `commuters` within the dataset, `dataUS`. Make sure your code prints out these states below.
+
+5.  Can you observe any common patterns or trends among these states? Please provide a brief summary below.
+:::
+
+## Your code for Task 1
+
+```{r, echo=TRUE}
+# Please provide your code for Task 1 in this code chunk
+
+
+
+```
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="simple"}
+## Task 2: CORRELATION
+
+-   Your goal is to calculate the correlations between `commuters` and all variables but `State` in `dataUS`. Name your R object as `cor_with_commuters` which displays variable names under `Variable` column and correlation coefficients under `Correlation` column.
+
+-   Sort `Correlation` values in `cor_with_commuters` in descending order based on their absolute values.
+
+-   Generate a scatter plot where 'commuters' is placed on the y-axis, and the variable with the highest correlation coefficient (in absolute value) with 'commuters' is placed on the x-axis. Differentiate the data points using distinct colors depending on whether 'OwnComputer' is less than 88 or not. Don't forget to label your axes for clarity.
+
+-   What observations or insights can you draw from this plot? Please describe any patterns or trends you notice and provide your interpretation of the relationship between commute time and income in this context
+:::
+
+## Your code for Task 2
+
+```{r, echo=TRUE}
+# Please provide your code for Task 2 in this code chunk
+
+
+```
+
+------------------------------------------------------------------------
+
+::: callout-important
+## Task 3: REGRESSION
+
+-   Create an R object named `model1` to store the linear regression output (`model1`) with the following predictors: `MedianAge`, `Income100K.150K`, `Income35K.50K`, and `PovertyRate` in `dataUS` dataset. This model aims to predict `commuters`.
+
+-   Provide a one-sentence interpretation for each coefficient estimate in `model1`, excluding the intercept.
+
+-   Create a scatterplot that displays the relationship between residuals and fitted values for 'model1.' Based on your visual inspection of the plot, identify and explain the number of potential outliers you observe. Ensure that your code generates and displays the scatterplot below.
+:::
+
+## Your code for Task 3
+
+```{r, echo=TRUE}
+# Please provide your code for Task 3 in this code chunk
+
+
+
+
+
+```
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="simple"}
+## Task 4: OUTLIER DETECTION
+
+-   Cook's distance is a frequently employed metric for detecting influential data points that exert a significant influence on a regression model. In this lab assignment, utilize a Cook's Distance threshold of 1 to pinpoint the row numbers of any outliers.
+
+-   Which States seem to be an outlier in `model1`?
+
+-   Remove the outlier states from your dataset and save your new dataset as `dataUS_removed`.
+:::
+
+## Your code for Task 4
+
+```{r, echo=TRUE}
+# Please provide your code for Task 4 in this code chunk
+
+
+
+
+
+
+
+```
+
+------------------------------------------------------------------------
+
+::: callout-important
+## Task 5: MULTICOLLINEARITY CHECK
+
+-   Multicollinearity occurs when two or more independent variables in a regression model are highly correlated, which can result in unstable and unreliable estimates of the regression coefficients. We can check for multicollinearity by calculating the variance inflation factor (VIF). Any VIF value 10 or above can be considered as an `evidence of high multi-collinearity`.
+
+-   Create an R object called `model2` to store the linear regression results, using all predictors except `State` from the `dataUS_removed` dataset to predict `commuters`.
+
+-   Apply the **`vif()`** function in R to assess which variables in `model2` exhibit signs of multicollinearity. List the names of the variables that demonstrate multicollinearity.
+
+-   Next, create a new linear regression model named `model3` by removing the variables identified as "showing signs of multicollinearity". Calculate and compare the Adjusted R-squared values for both `model2` and `model3`. Provide your comments and insights based on the comparison of these values
+:::
+
+## Your code for Task 5
+
+```{r, echo=TRUE}
+# Please provide your code for Task 5 in this code chunk
+
+
+
+```
